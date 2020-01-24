@@ -7,7 +7,7 @@ Player::Player() {
 	m_Health = START_HEALTH;
 	m_MaxHealth = START_HEALTH;
 
-	m_Texture.loadFromFile("graphic/player.png");
+	m_Texture.loadFromFile("graphics/player.png");
 	m_Sprite.setTexture(m_Texture);
 
 	m_Sprite.setOrigin(25, 25);
