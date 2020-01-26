@@ -65,7 +65,7 @@ void Player::stopLeft() { m_LeftPressed = false; }
 void Player::stopRight() { m_RightPressed = false; }
 
 
-void Player::update(float elapsedTime, Vector2f mousePosition) {
+void Player::update(float elapsedTime, Vector2i mousePosition) {
 	// Move as directed by player controls
 	if (m_UpPressed) { m_Position.y += m_Speed * elapsedTime; }
 	if (m_DownPressed) { m_Position.y -= m_Speed * elapsedTime; }

@@ -49,7 +49,7 @@ public:
 	void stopUp();
 	void stopDown();
 
-	void update(float elapsedTime, Vector2f mousePosition);
+	void Player::update(float elapsedTime, Vector2i mousePosition);
 
 	void upgradeSpeed();
 	void upgradeHealth();
