@@ -28,6 +28,8 @@ int main() {
 
 	Player player;
 	IntRect arena;
+
+	srand((int)time(0));
 	// End Setup
 	
 
