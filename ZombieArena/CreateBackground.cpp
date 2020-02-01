@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include <SFML/Graphics.hpp>
 #include "ZombieArena.h"
 
 int createBackground(VertexArray& rVA, IntRect arena) {
@@ -27,7 +28,7 @@ int createBackground(VertexArray& rVA, IntRect arena) {
 				Vector2f(w * TILE_SIZE, h * TILE_SIZE + TILE_SIZE);
 
 			// Use the wall texture for boundaries
-			if (h == 0 || h == worldHeight || w == 0 || w == worldWidth) {
+			if (h == 0 || h == worldHeight-1 || w == 0 || w == worldWidth-1) {
 				rVA[currentVertex + 0].texCoords =
 					Vector2f(0, 0 + TILE_TYPES * TILE_SIZE);
 				rVA[currentVertex + 1].texCoords =

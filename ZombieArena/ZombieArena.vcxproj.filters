@@ -18,10 +18,10 @@
     <ClInclude Include="stdafx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="headers\Player.h">
+    <ClInclude Include="ZombieArena.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ZombieArena.h">
+    <ClInclude Include="Player.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
