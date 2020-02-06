@@ -27,7 +27,7 @@ void Zombie::spawn(float startX, float startY, int type) {
 		break;
 	}
 
-	float modifier = (rand() % MAX_VARIANCE + OFFSET) / 100;
+	float modifier = (rand() % MAX_VARIANCE + OFFSET) / 100.0;
 	m_Speed *= modifier;
 
 	m_Position.x = startX;

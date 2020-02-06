@@ -3,11 +3,15 @@
 
 #include "ZombieArena.h"
 #include "Player.h"
+#include "TextureHolder.h"
+#include "Bullet.h"
 
 using namespace sf;
 
 int main() {
 	// Setup
+	TextureHolder holder;
+
 	enum class State { PAUSED, LEVELING_UP, GAME_OVER, PLAYING };
 	srand((int)time(0));
 
@@ -33,8 +37,20 @@ int main() {
 	IntRect arena;
 
 	VertexArray background;
-	Texture textureBackground;
-	textureBackground.loadFromFile("graphics/background_sheet.png");
+	Texture textureBackground = TextureHolder::GetTexture(
+		"graphics/background_sheet.png");
+
+	int numZombies;
+	int numZombiesAlive;
+	Zombie* zombies = nullptr;
+
+	Bullet bullets[Bullet::MAX_BULLETS];
+	int currentBullet = 0;
+	int bulletSpare = 24;
+	int bulletsInClip = 6;
+	int clipSize = 6;
+	float fireRate = 1;
+	Time lastPressed;
 	// End Setup
 	
 
@@ -72,7 +88,23 @@ int main() {
 				}
 
 				if (state == State::PLAYING) {
-
+					//Reloading
+					if (event.key.code == Keyboard::R) {
+						if (bulletSpare >= clipSize) {
+							// Fixed so we dont have to throw away extras
+							int bulletsToFill = clipSize - bulletsInClip;
+							bulletsInClip = clipSize;
+							bulletSpare -= bulletsToFill;
+						}
+						else if (bulletSpare > 0) {
+							bulletsInClip = bulletSpare;
+							bulletSpare = 0;
+						}
+						else {
+							// Out of ammo
+						}
+					}
+					// End Reloading
 				}
 			}
 		}	
@@ -81,8 +113,9 @@ int main() {
 		// Quitting the game
 		if (Keyboard::isKeyPressed(Keyboard::Escape)) { window.close(); }
 
-		// Handle WASD while playing
+		// Handle input while playing
 		if (state == State::PLAYING) {
+			// WASD movement
 			if (Keyboard::isKeyPressed(Keyboard::W)) { player.moveUp(); }
 				else { player.stopUp(); }
 			if (Keyboard::isKeyPressed(Keyboard::A)) { player.moveLeft(); }
@@ -91,8 +124,27 @@ int main() {
 				else { player.stopDown(); }
 			if (Keyboard::isKeyPressed(Keyboard::D)) { player.moveRight(); }
 				else { player.stopRight(); }
+			// End WASD
+
+			// Shooting
+			if (Mouse::isButtonPressed(Mouse::Left)) {
+				if (gameTimeTotal.asMilliseconds() 
+					- lastPressed.asMilliseconds() > 1000 / fireRate 
+					&& bulletsInClip > 0) {
+
+					bullets[currentBullet].shoot(
+						player.getCenter().x, player.getCenter().y,
+						mouseWorldPosition.x, mouseWorldPosition.y);
+
+					currentBullet++;
+					if (currentBullet > 99) { currentBullet = 0; }
+					lastPressed = gameTimeTotal;
+					bulletsInClip--;
+				}
+			}
+			// End Shooting
 		}
-		// End WASD
+		// End input
 
 		// Handle leveling up
 		if (state == State::LEVELING_UP) {
@@ -113,6 +165,12 @@ int main() {
 				int tileSize = createBackground(background, arena);
 
 				player.spawn(arena, resolution, tileSize);
+				numZombies = 10;
+
+				delete[] zombies;
+				zombies = createHorde(numZombies, arena);
+				numZombiesAlive = numZombies;
+
 				clock.restart();
 			}
 		}
@@ -134,6 +192,20 @@ int main() {
 			player.update(dtAsSeconds, Mouse::getPosition());
 			Vector2f playerPosition(player.getCenter());
 			mainView.setCenter(player.getCenter());
+
+			// Update each zombie
+			for (int i = 0; i < numZombies; i++) {
+				if (zombies[i].isAlive()) {
+					zombies[i].update(dt.asSeconds(), playerPosition);
+				}
+			}
+
+			// Update each bullet
+			for (int i = 0; i < Bullet::MAX_BULLETS; i++) {
+				if (bullets[i].isInFlight()) {
+					bullets[i].update(dtAsSeconds);
+				}
+			}
 		}
 
 
@@ -144,7 +216,21 @@ int main() {
 			window.clear();
 			window.setView(mainView);
 			window.draw(background, &textureBackground);
+
 			window.draw(player.getSprite());
+
+			// Zombies
+			for (int i = 0; i < numZombies; i++) { 
+				window.draw(zombies[i].getSprite()); 
+			}
+
+			// Bullets
+			for (int i = 0; i < Bullet::MAX_BULLETS; i++) {
+				if (bullets[i].isInFlight()) {
+					window.draw(bullets[i].getShape());
+				}
+			}
+
 		}
 
 		if (state == State::LEVELING_UP) {
@@ -161,6 +247,8 @@ int main() {
 
 		window.display();
 	}
+	// End Main loop
 
+	delete[] zombies;
 	return 0;
 }
